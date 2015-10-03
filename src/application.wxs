@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="*" UpgradeCode="12345678-1234-1234-1234-111111111111" 
-            Name="Example Product Name" Version="0.0.1" Manufacturer="Example Company Name" Language="1033">
+            Name="$(env.ApplicationName)" Version="0.0.1" Manufacturer="Uriil" Language="1033">
 		<Package InstallerVersion="200" Compressed="yes" Comments="Windows Installer Package"/>
 		<Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
 
-		<Property Id='TARGETDIR' Value='D:\APSm3prog\'/>
-		<SetProperty Id="INSTALLSCRIPT" Value="[TARGETDIR]install.ps1" After="LaunchConditions" />
+		<Property Id='TARGETDIR' Value='D:\Apps\'/>
+		<Property Id='INSTALLSCRIPTFILE' Value='$(env.InstallScriptFile)'/>
+		<SetProperty Id="INSTALLSCRIPT" Value="[TARGETDIR][INSTALLSCRIPTFILE]" After="LaunchConditions" />
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="INSTALLLOCATION" />
@@ -14,7 +15,7 @@
 
 		<!-- Run custom action to run the powershell script-->
 		<Property Id="POWERSHELLEXE">
-		  <RegistrySearch Id="POWERSHELLEXE"
+		<RegistrySearch Id="POWERSHELLEXE"
 						  Type="raw"
 						  Root="HKLM"
 						  Key="SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell"
@@ -33,11 +34,11 @@
 					  Impersonate="yes" />
 
 		<InstallExecuteSequence>
-			<Custom Action="RunPSscript" After="InstallFiles"><![CDATA[NOT Installed]]></Custom>
+			<Custom Action="RunPSscript" After="InstallFiles"><![CDATA[INSTALLSCRIPTFILE <> "None"]]></Custom>
 		</InstallExecuteSequence>
 		
 		<Feature Id="DefaultFeature" Level="1">
-			<ComponentGroupRef  Id="MyFiles"/>
+			<ComponentGroupRef  Id="FilesToBeInstalled"/>
 		</Feature>
 	</Product>
 </Wix>
