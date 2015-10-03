@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" UpgradeCode="12345678-1234-1234-1234-111111111111" 
+            Name="Example Product Name" Version="0.0.1" Manufacturer="Example Company Name" Language="1033">
+		<Package InstallerVersion="200" Compressed="yes" Comments="Windows Installer Package"/>
+		<Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+
+		<Property Id='TARGETDIR' Value='D:\APSm3prog\'/>
+		<SetProperty Id="INSTALLSCRIPT" Value="[TARGETDIR]install.ps1" After="LaunchConditions" />
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="INSTALLLOCATION" />
+		</Directory>
+
+		<!-- Run custom action to run the powershell script-->
+		<Property Id="POWERSHELLEXE">
+		  <RegistrySearch Id="POWERSHELLEXE"
+						  Type="raw"
+						  Root="HKLM"
+						  Key="SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell"
+						  Name="Path" />
+		</Property>
+
+		<SetProperty Id="RunPSscript"
+					 Before="RunPSscript"
+					 Sequence="execute"
+					 Value ="&quot;[POWERSHELLEXE]&quot; -Version 2.0 -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -Command &quot;&amp; '[INSTALLSCRIPT]' ; exit $$($Error.Count)&quot;" />
+		<CustomAction Id="RunPSscript"
+					  BinaryKey="WixCA"
+					  DllEntry="CAQuietExec"
+					  Execute="deferred"
+					  Return="check"
+					  Impersonate="yes" />
+
+		<InstallExecuteSequence>
+			<Custom Action="RunPSscript" After="InstallFiles"><![CDATA[NOT Installed]]></Custom>
+		</InstallExecuteSequence>
+		
+		<Feature Id="DefaultFeature" Level="1">
+			<ComponentGroupRef  Id="MyFiles"/>
+		</Feature>
+	</Product>
+</Wix>
