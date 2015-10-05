@@ -34,6 +34,7 @@
 					  Impersonate="yes" />
 
 		<InstallExecuteSequence>
+			<RemoveExistingProducts Before='InstallInitialize' />
 			<Custom Action="RunPSscript" After="InstallFiles"><![CDATA[INSTALLSCRIPTFILE <> "None"]]></Custom>
 		</InstallExecuteSequence>
 		
